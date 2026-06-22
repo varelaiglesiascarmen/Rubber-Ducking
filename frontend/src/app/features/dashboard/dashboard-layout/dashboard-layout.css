@@ -1,0 +1,326 @@
+mat-sidenav-container.app-container {
+  background-color: var(--bg-main) !important;
+  height: calc(100vh - 70px) !important;
+  width: 100vw !important;
+}
+
+mat-sidenav.sidebar {
+  width: 280px;
+  background-color: var(--bg-surface) !important;
+  border-right: 1px solid var(--border-color) !important;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+mat-sidenav-content.main-content {
+  background-color: var(--bg-main) !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.workspace-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 300px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border-color);
+}
+
+.editor-panel:last-of-type {
+  border-right: none;
+}
+
+.editor-header {
+  background-color: var(--bg-main);
+  padding: 14px 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.editor-header.active-panel {
+  color: var(--text-pink);
+}
+
+.editor-header.active-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--pink-primary);
+  box-shadow: 0 -2px 10px var(--pink-primary);
+}
+
+.panel-status.active {
+  color: var(--pink-primary);
+}
+
+.code-content {
+  flex: 1;
+  padding: 0;
+  font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  overflow: hidden;
+  color: var(--text-main);
+  background-color: var(--code-bg);
+}
+
+.code-textarea {
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--text-main);
+  background-color: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+.code-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.code-output {
+  padding: 24px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-muted);
+}
+
+.agents-sidebar {
+  background-color: var(--bg-surface);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.flow-group {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.agents-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agent-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  transition: var(--transition-smooth);
+}
+
+.agent-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+  display: block;
+}
+
+.agent-running .agent-dot {
+  background-color: var(--pink-primary);
+  box-shadow: 0 0 8px var(--pink-primary);
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+.agent-completed .agent-dot {
+  background-color: #4ade80;
+}
+
+.agent-error .agent-dot {
+  background-color: #ef4444;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
+.agent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agent-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.agent-status {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.console-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.console-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.console-header .section-title {
+  margin-bottom: 0;
+}
+
+.btn-clear-console {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-clear-console:hover {
+  border-color: var(--pink-primary);
+  color: var(--pink-primary);
+}
+
+.console-log-content {
+  flex: 1;
+  padding: 16px 20px;
+  font-family: 'Fira Code', Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+.console-empty {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.log-entry {
+  padding: 4px 0;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  transition: var(--transition-smooth);
+}
+
+.status-badge.active {
+  color: var(--pink-primary);
+  border-color: var(--pink-primary);
+  box-shadow: 0 0 12px rgba(255, 126, 187, 0.15);
+}
+
+.status-badge.connecting {
+  color: var(--lavender);
+  border-color: var(--lavender);
+  box-shadow: 0 0 12px rgba(203, 163, 249, 0.15);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.btn-orchestrate {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--pink-primary);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-orchestrate:hover {
+  background-color: var(--pink-neon);
+  box-shadow: 0 0 20px rgba(255, 64, 159, 0.3);
+}
+
+.config-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.tech-selector-grid,
+.objectives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 1024px) {
+  .workspace-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr auto;
+  }
+
+  .agents-sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+  }
+}

@@ -1,0 +1,278 @@
+/* VARIABLES GLOBALES Y PALETA DE COLORES */
+@custom-media --viewport-md (max-width: 1024px);
+
+:root {
+  --bg-main: #080a0f;
+  --bg-surface: #111420;
+  --bg-surface-hover: #171b2b;
+
+  --border-color: #22273d;
+  --focus-ring: rgba(255, 126, 187, 0.4);
+
+  --pink-primary: #ff7ebb;
+  --pink-neon: #ff409f;
+  --pink-muted: rgba(255, 126, 187, 0.08);
+  --lavender: #cba3f9;
+
+  --text-main: #f3f4f7;
+  --text-muted: #8e95ab;
+  --text-pink: #ffc2e0;
+
+  --code-bg: #0b0d14;
+  --code-keyword: #ff7ebb;
+  --code-string: #9ee5d9;
+  --code-comment: #5c627a;
+  --code-function: #a9beff;
+
+  --transition-smooth: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* RESET GENERAL DE ESTILOS Y ACCESIBILIDAD */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-main);
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* COMPONENTES DE ANGULAR MATERIAL (OVERRIDES) */
+mat-sidenav-container.app-container {
+  background-color: var(--bg-main) !important;
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+mat-sidenav.sidebar {
+  width: 280px;
+  background-color: var(--bg-surface) !important;
+  border-right: 1px solid var(--border-color) !important;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+mat-sidenav-content.main-content {
+  background-color: var(--bg-main) !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* TIPOGRAFIAS Y TITULOS DE LOGO */
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text-main);
+}
+
+.brand-title span {
+  color: var(--pink-primary);
+  text-shadow: 0 0 16px rgba(255, 126, 187, 0.3);
+}
+
+.section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pink-primary);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* TARJETAS INTERACTIVAS (CONFIGURACION Y FLUJO DE TRABAJO) */
+.card-option {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-smooth),
+              border-color var(--transition-smooth),
+              box-shadow var(--transition-smooth);
+}
+
+.card-option:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--pink-primary);
+}
+
+.card-option:focus-visible {
+  outline: 2px solid var(--pink-primary);
+  outline-offset: 2px;
+}
+
+.card-option.active {
+  background-color: var(--pink-muted);
+  border-color: var(--pink-primary);
+  box-shadow: inset 0 0 12px rgba(255, 126, 187, 0.05),
+              0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-option h4 {
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.card-option p {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+/* PANELES DE CODIGO Y EDITORES HIBRIDOS */
+.editor-container {
+  display: flex;
+  flex: 1;
+  border-top: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-panel:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.editor-header {
+  background-color: var(--bg-main);
+  padding: 14px 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.editor-header.active-panel {
+  color: var(--text-pink);
+}
+
+.editor-header.active-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--pink-primary);
+  box-shadow: 0 -2px 10px var(--pink-primary);
+}
+
+.code-content {
+  flex: 1;
+  padding: 24px;
+  font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  overflow: auto;
+  color: var(--text-main);
+  background-color: var(--code-bg);
+}
+
+/* RESALTADO DE SINTAXIS PARA TOKENS DE CODIGO */
+.token.keyword   { color: var(--code-keyword); font-weight: 600; }
+.token.string    { color: var(--code-string); }
+.token.comment   { color: var(--code-comment); font-style: italic; }
+.token.function  { color: var(--code-function); }
+.token.important { color: var(--text-pink); font-weight: bold; }
+
+/* PERSONALIZACION DE LAS BARRAS DE DESPLAZAMIENTO (SCROLLBARS) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pink-primary);
+}
+
+.app-header {
+  height: 70px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+}
+
+/* Contenedor horizontal del logo y los textos */
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Contenedor flex específico para DuckIA y el título */
+.logo-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Forzar las dimensiones reales del logo.svg */
+.header-duck-logo {
+  display: block;
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: contain;
+}
+
+.brand-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-left: 12px;
+  border-left: 1px solid var(--border-color);
+  padding-left: 12px;
+}

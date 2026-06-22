@@ -1,0 +1,9 @@
+backend/.env
+node_modules/
+dist/
+.pytest_cache/
+__pycache__/
+*.pyc
+.angular/
+.DS_Store
+*.log

@@ -1,0 +1,143 @@
+<header class="app-header">
+  <div class="brand-section">
+    <div class="logo-title-container">
+      <img src="logo.svg" alt="BillAI" class="header-duck-logo" />
+      <h1 class="brand-title">Rubber<span>Ducking</span></h1>
+    </div>
+    <p class="brand-subtitle">MultiAgentes para Refactorización de Código por Carmen Varela Iglesias</p>
+  </div>
+
+  <div class="header-actions">
+    <span class="status-badge" [class.active]="isOrchestrating()"
+          [class.connecting]="connectionStatus() === 'connecting'">
+      {{ statusLabel() }}
+    </span>
+  </div>
+</header>
+
+<mat-sidenav-container class="app-container">
+
+  <mat-sidenav mode="side" opened class="sidebar">
+
+    <section class="config-group">
+      <h3 class="section-title">1. Configuración</h3>
+      <p class="config-label">Stack Tecnológico</p>
+      <div class="tech-selector-grid">
+        <button class="card-option" [class.active]="selectedStack() === 'angular'"
+                (click)="setStack('angular')">
+          <h4>Angular 21</h4>
+          <p>Standalone + Signals + Material</p>
+        </button>
+        <button class="card-option" [class.active]="selectedStack() === 'react'"
+                (click)="setStack('react')">
+          <h4>React 19</h4>
+          <p>Hooks + Server Components</p>
+        </button>
+        <button class="card-option" [class.active]="selectedStack() === 'vue'"
+                (click)="setStack('vue')">
+          <h4>Vue 4</h4>
+          <p>Composition + Script Setup</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="config-group">
+      <h3 class="section-title">2. Objetivo de IA</h3>
+      <div class="objectives-list">
+        <button class="card-option" [class.active]="selectedObjective() === 'refactor'"
+                (click)="setObjective('refactor')">
+          <h4>Refactorizar a Signals</h4>
+          <p>Convierte lógica legacy a Signals reactivas</p>
+        </button>
+        <button class="card-option" [class.active]="selectedObjective() === 'optimize'"
+                (click)="setObjective('optimize')">
+          <h4>Optimizar Rendimiento</h4>
+          <p>Mejora detección de cambios y bundle</p>
+        </button>
+        <button class="card-option" [class.active]="selectedObjective() === 'migrate'"
+                (click)="setObjective('migrate')">
+          <h4>Migrar a Standalone</h4>
+          <p>Elimina módulos y adopta standalone</p>
+        </button>
+      </div>
+    </section>
+
+    <footer class="sidebar-footer">
+      <button class="btn-orchestrate" (click)="toggleOrchestration()"
+              [disabled]="connectionStatus() === 'connecting'">
+        {{ isOrchestrating() ? 'Detener' : 'Iniciar' }} Orquestación
+      </button>
+    </footer>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main-content">
+
+    <div class="workspace-layout">
+
+      <section class="editor-panel">
+        <header class="editor-header active-panel">
+          <span>Código Original</span>
+          <span class="panel-mode">Lectura / Escritura</span>
+        </header>
+        <div class="code-content">
+          <textarea class="code-textarea"
+                    [value]="codeInput()"
+                    (input)="codeInput.set($any($event.target).value)"
+                    placeholder="Pega aquí tu código TypeScript para refactorizar..."
+                    spellcheck="false"></textarea>
+        </div>
+      </section>
+
+      <section class="editor-panel">
+        <header class="editor-header">
+          <span>Código Refactorizado por Agentes</span>
+          <span class="panel-status" [class.active]="isOrchestrating()">
+            {{ isOrchestrating() ? 'Procesando...' : 'Inactivo' }}
+          </span>
+        </header>
+        <div class="code-content">
+          <pre class="code-output">{{ codeOutput() || '// El código refactorizado aparecerá aquí después de la orquestación.' }}</pre>
+        </div>
+      </section>
+
+      <aside class="agents-sidebar">
+
+        <section class="flow-group">
+          <h3 class="section-title">Flujo de Trabajo</h3>
+          <div class="agents-status-list">
+            @for (agent of agents(); track agent.name) {
+              <div class="agent-step" [class]="'agent-' + agent.status">
+                <div class="agent-indicator">
+                  <span class="agent-dot"></span>
+                </div>
+                <div class="agent-info">
+                  <span class="agent-name">{{ agent.label }}</span>
+                  <span class="agent-status">{{ agent.status }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="console-group">
+          <header class="console-header">
+            <h3 class="section-title">Debate & Consola de Red</h3>
+            <button class="btn-clear-console" (click)="clearConsole()">Limpiar</button>
+          </header>
+          <div class="console-log-content">
+            @if (consoleLogs().length === 0) {
+              <span class="console-empty">Sin actividad. Inicia la orquestación para ver los logs.</span>
+            }
+            @for (log of consoleLogs(); track $index) {
+              <div class="log-entry">{{ log }}</div>
+            }
+          </div>
+        </section>
+
+      </aside>
+
+    </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
