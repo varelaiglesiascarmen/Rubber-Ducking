@@ -2,6 +2,9 @@
 
 **Refactorización automática de código Angular mediante un pipeline multi-agente con IA.**
 
+<img width="1955" height="905" alt="social-preview" src="https://github.com/user-attachments/assets/e2567c5c-d472-4e20-9954-dbcec7699df9" />
+
+
 Rubber-Ducking w/ BillAI automatiza la migración de código Angular legacy al patrón moderno de **Signals** utilizando un pipeline secuencial de 3 agentes de IA (CrewAI + Groq LLM) que analizan, refactorizan y validan el código en tiempo real.
 
 El nombre evoca la técnica del *Rubber Duck Debugging* — explicar tu código a un patito de goma para encontrar errores — pero aquí el patito es reemplazado por agentes de IA especializados que no solo escuchan, sino que transforman activamente tu código.
