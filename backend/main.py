@@ -1,3 +1,4 @@
+import asyncio
 import json
 import uuid
 from contextlib import asynccontextmanager
@@ -55,8 +56,17 @@ async def agent_websocket(ws: WebSocket):
 
     try:
         while True:
-            raw = await ws.receive_text()
-            data = json.loads(raw)
+            raw = await asyncio.wait_for(
+                ws.receive_text(), timeout=settings.ws_receive_timeout
+            )
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                await manager.send_json(client_id, {
+                    "type": "error",
+                    "message": "Invalid JSON received"
+                })
+                continue
 
             if data.get("type") == "analyze":
                 if not rate_limiter.is_allowed(client_id):
@@ -90,9 +100,16 @@ async def agent_websocket(ws: WebSocket):
 
     except WebSocketDisconnect:
         await manager.disconnect(client_id)
-    except Exception as e:
+    except asyncio.TimeoutError:
         await manager.send_json(client_id, {
             "type": "error",
-            "message": str(e)
+            "message": "Request timed out"
+        })
+        await manager.disconnect(client_id)
+    except Exception as e:
+        msg = str(e).splitlines()[0] if str(e) else "Internal error"
+        await manager.send_json(client_id, {
+            "type": "error",
+            "message": msg
         })
         await manager.disconnect(client_id)
