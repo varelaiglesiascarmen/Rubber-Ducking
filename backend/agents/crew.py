@@ -10,6 +10,7 @@ from agents.programmer import create_programmer_agent, create_refactoring_task
 from agents.validator import create_validator_agent, create_validation_task
 
 _executor = ThreadPoolExecutor(max_workers=settings.max_workers)
+_llm: LLM | None = None
 
 
 def shutdown_executor() -> None:
@@ -17,12 +18,15 @@ def shutdown_executor() -> None:
 
 
 def get_llm() -> LLM:
-    return LLM(
-        model=f"groq/{settings.groq_model}",
-        api_key=settings.groq_api_key,
-        temperature=0.3,
-        timeout=settings.groq_timeout * 1000
-    )
+    global _llm
+    if _llm is None:
+        _llm = LLM(
+            model=f"groq/{settings.groq_model}",
+            api_key=settings.groq_api_key,
+            temperature=0.3,
+            timeout=settings.groq_timeout * 1000
+        )
+    return _llm
 
 
 def _run_agent(
@@ -52,15 +56,16 @@ async def _run_stage(
     )
 
     try:
+        future = loop.run_in_executor(
+            _executor,
+            _run_agent,
+            llm,
+            agent_factory,
+            task_factory,
+            *task_args
+        )
         result = await asyncio.wait_for(
-            loop.run_in_executor(
-                _executor,
-                _run_agent,
-                llm,
-                agent_factory,
-                task_factory,
-                *task_args
-            ),
+            future,
             timeout=settings.agent_timeout
         )
 
@@ -77,6 +82,7 @@ async def _run_stage(
             client_id, stage_name, "error",
             f"{stage_name} timed out after {settings.agent_timeout}s"
         )
+        future.cancel()
         raise
     except Exception as e:
         await manager.stream_agent_status(
