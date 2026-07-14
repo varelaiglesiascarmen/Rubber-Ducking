@@ -69,7 +69,7 @@ async def agent_websocket(ws: WebSocket):
                 continue
 
             if data.get("type") == "analyze":
-                if not rate_limiter.is_allowed(client_id):
+                if not await rate_limiter.is_allowed(client_id):
                     await manager.send_json(client_id, {
                         "type": "error",
                         "message": "Rate limit exceeded. Max 5 analyses per minute."
