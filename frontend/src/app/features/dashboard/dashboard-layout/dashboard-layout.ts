@@ -38,6 +38,8 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public codeOutput = signal<string>('');
 
   private handler = (msg: WsMessage) => this.handleMessage(msg);
+  private _pollInterval: ReturnType<typeof setInterval> | null = null;
+  private _pollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private ws: AgentWsService) {}
 
@@ -47,6 +49,7 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.ws.removeMessageHandler(this.handler);
+    this._clearPolling();
   }
 
   public setStack(stack: string): void {
@@ -72,15 +75,26 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
     this.isOrchestrating.set(true);
     this.ws.connect();
     if (this.ws.connectionStatus() !== 'connected') {
-      const unsub = setInterval(() => {
+      this._pollInterval = setInterval(() => {
         if (this.ws.connectionStatus() === 'connected') {
-          clearInterval(unsub);
+          this._clearPolling();
           this.ws.sendAnalyze(this.codeInput());
         }
       }, 100);
-      setTimeout(() => clearInterval(unsub), 10000);
+      this._pollTimeout = setTimeout(() => this._clearPolling(), 10000);
     } else {
       this.ws.sendAnalyze(this.codeInput());
+    }
+  }
+
+  private _clearPolling(): void {
+    if (this._pollInterval !== null) {
+      clearInterval(this._pollInterval);
+      this._pollInterval = null;
+    }
+    if (this._pollTimeout !== null) {
+      clearTimeout(this._pollTimeout);
+      this._pollTimeout = null;
     }
   }
 

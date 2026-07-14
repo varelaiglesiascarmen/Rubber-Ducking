@@ -40,6 +40,7 @@ export class AgentWsService implements OnDestroy {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
   private pingInterval: ReturnType<typeof setInterval> | null = null;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private messageHandlers: Array<(msg: WsMessage) => void> = [];
 
   connect(): void {
@@ -78,6 +79,7 @@ export class AgentWsService implements OnDestroy {
 
   disconnect(): void {
     this.reconnectAttempts = this.maxReconnectAttempts;
+    this._cancelReconnect();
     this.stopHeartbeat();
     if (this.ws) {
       this.ws.onclose = null;
@@ -107,11 +109,22 @@ export class AgentWsService implements OnDestroy {
     this.messageHandlers = [];
   }
 
+  private _cancelReconnect(): void {
+    if (this.reconnectTimeout !== null) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
+
   private tryReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) return;
     const delay = Math.pow(2, this.reconnectAttempts) * 1000;
     this.reconnectAttempts++;
-    setTimeout(() => this.connect(), delay);
+    this._cancelReconnect();
+    this.reconnectTimeout = setTimeout(() => {
+      this.reconnectTimeout = null;
+      this.connect();
+    }, delay);
   }
 
   private startHeartbeat(): void {
