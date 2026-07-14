@@ -39,6 +39,15 @@ export class AgentWsService implements OnDestroy {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
+
+  /** @internal testing accessor */
+  _test(): { ws: WebSocket | null; reconnectAttempts: number; maxReconnectAttempts: number } {
+    return {
+      ws: this.ws,
+      reconnectAttempts: this.reconnectAttempts,
+      maxReconnectAttempts: this.maxReconnectAttempts,
+    };
+  }
   private pingInterval: ReturnType<typeof setInterval> | null = null;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private messageHandlers: Array<(msg: WsMessage) => void> = [];

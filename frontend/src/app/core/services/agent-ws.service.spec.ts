@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { AgentWsService } from './agent-ws.service';
+import { AgentWsService, WsMessage } from './agent-ws.service';
 
 describe('AgentWsService', () => {
   let service: AgentWsService;
@@ -10,6 +10,7 @@ describe('AgentWsService', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     service.disconnect();
   });
 
@@ -27,9 +28,9 @@ describe('AgentWsService', () => {
     const handler = vi.fn();
     service.onMessage(handler);
 
-    const ws = (service as any).ws;
+    const ws = service._test().ws;
     expect(ws).toBeTruthy();
-    ws.onmessage({ data: JSON.stringify({
+    ws!.onmessage({ data: JSON.stringify({
       type: 'pipeline_complete',
       result: { audit: 'ok', refactored: 'ok', validation: 'ok' }
     })});
@@ -42,8 +43,8 @@ describe('AgentWsService', () => {
     service.connect();
     const handler = vi.fn();
     service.onMessage(handler);
-    const ws = (service as any).ws;
-    ws.onmessage({ data: 'not json' });
+    const ws = service._test().ws;
+    ws!.onmessage({ data: 'not json' });
     expect(handler).not.toHaveBeenCalled();
   });
 
@@ -55,9 +56,9 @@ describe('AgentWsService', () => {
 
   it('should send analyze message', () => {
     service.connect();
-    const ws = (service as any).ws;
+    const ws = service._test().ws;
     const sendSpy = vi.fn();
-    ws.send = sendSpy;
+    ws!.send = sendSpy;
     service.sendAnalyze('const x = 1;');
     expect(sendSpy).toHaveBeenCalledWith(
       JSON.stringify({ type: 'analyze', code: 'const x = 1;' })
@@ -67,13 +68,13 @@ describe('AgentWsService', () => {
   it('should not reconnect after max attempts', () => {
     vi.useFakeTimers();
     service.connect();
-    (service as any).reconnectAttempts = 3;
-    (service as any).maxReconnectAttempts = 3;
-    const ws = (service as any).ws;
-    ws.onclose();
+    const test = service._test();
+    test.reconnectAttempts = 3;
+    test.maxReconnectAttempts = 3;
+    const ws = test.ws;
+    ws!.onclose!({} as CloseEvent);
     vi.advanceTimersByTime(10000);
-    expect((service as any).reconnectAttempts).toBe(3);
-    vi.useRealTimers();
+    expect(test.reconnectAttempts).toBe(3);
   });
 
   it('should handle multiple message handlers', () => {
@@ -82,8 +83,8 @@ describe('AgentWsService', () => {
     const h2 = vi.fn();
     service.onMessage(h1);
     service.onMessage(h2);
-    const ws = (service as any).ws;
-    ws.onmessage({ data: JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }) });
+    const ws = service._test().ws;
+    ws!.onmessage({ data: JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }) });
     expect(h1).toHaveBeenCalled();
     expect(h2).toHaveBeenCalled();
   });
@@ -93,8 +94,8 @@ describe('AgentWsService', () => {
     const h1 = vi.fn();
     service.onMessage(h1);
     service.removeMessageHandler(h1);
-    const ws = (service as any).ws;
-    ws.onmessage({ data: JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }) });
+    const ws = service._test().ws;
+    ws!.onmessage({ data: JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }) });
     expect(h1).not.toHaveBeenCalled();
   });
 });
