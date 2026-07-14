@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ws_max_connections: int = Field(default=10, ge=1)
     ws_inactivity_timeout: int = Field(default=300, ge=10)
     ws_cleanup_interval: int = Field(default=30, ge=5)
+    ws_receive_timeout: int = Field(default=120, ge=10)
     max_workers: int = Field(default=4, ge=1)
     cors_allowed_origins: list[str] = ["http://localhost:8080", "http://localhost:4200"]
 
