@@ -1,27 +1,3 @@
-mat-sidenav-container.app-container {
-  background-color: var(--bg-main) !important;
-  height: calc(100vh - 70px) !important;
-  width: 100vw !important;
-}
-
-mat-sidenav.sidebar {
-  width: 280px;
-  background-color: var(--bg-surface) !important;
-  border-right: 1px solid var(--border-color) !important;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-mat-sidenav-content.main-content {
-  background-color: var(--bg-main) !important;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
 .workspace-layout {
   display: grid;
   grid-template-columns: 1fr 1fr 300px;
@@ -322,5 +298,21 @@ mat-sidenav-content.main-content {
   .agents-sidebar {
     border-left: none;
     border-top: 1px solid var(--border-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-step {
+    transition: none;
+  }
+
+  .agent-running .agent-dot {
+    animation: none;
+  }
+
+  .btn-orchestrate,
+  .btn-clear-console,
+  .card-option {
+    transition: none;
   }
 }
