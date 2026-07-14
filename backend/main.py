@@ -67,6 +67,13 @@ async def agent_websocket(ws: WebSocket):
                     continue
 
                 code = data.get("code", "")
+                if len(code) > 50_000:
+                    await manager.send_json(client_id, {
+                        "type": "error",
+                        "message": "Code too large. Maximum 50KB allowed."
+                    })
+                    continue
+
                 await manager.stream_agent_status(
                     client_id, "system", "running", "Pipeline started"
                 )
@@ -82,10 +89,10 @@ async def agent_websocket(ws: WebSocket):
                 await manager.send_json(client_id, {"type": "pong"})
 
     except WebSocketDisconnect:
-        manager.disconnect(client_id)
+        await manager.disconnect(client_id)
     except Exception as e:
         await manager.send_json(client_id, {
             "type": "error",
             "message": str(e)
         })
-        manager.disconnect(client_id)
+        await manager.disconnect(client_id)

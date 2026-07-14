@@ -22,13 +22,10 @@ describe('AgentWsService', () => {
     expect(service.connectionStatus()).toBe('connecting');
   });
 
-  it('should call onMessage handler when message arrives', (done) => {
+  it('should call onMessage handler when message arrives', () => {
     service.connect();
-    service.onMessage((msg) => {
-      if (msg.type === 'pipeline_complete') {
-        done();
-      }
-    });
+    const handler = vi.fn();
+    service.onMessage(handler);
 
     const ws = (service as any).ws;
     expect(ws).toBeTruthy();
@@ -36,15 +33,18 @@ describe('AgentWsService', () => {
       type: 'pipeline_complete',
       result: { audit: 'ok', refactored: 'ok', validation: 'ok' }
     })});
+    expect(handler).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'pipeline_complete' })
+    );
   });
 
   it('should ignore malformed JSON', () => {
     service.connect();
-    let called = false;
-    service.onMessage(() => called = true);
+    const handler = vi.fn();
+    service.onMessage(handler);
     const ws = (service as any).ws;
     ws.onmessage({ data: 'not json' });
-    expect(called).toBeFalse();
+    expect(handler).not.toHaveBeenCalled();
   });
 
   it('should disconnect gracefully', () => {
@@ -56,29 +56,30 @@ describe('AgentWsService', () => {
   it('should send analyze message', () => {
     service.connect();
     const ws = (service as any).ws;
-    spyOn(ws, 'send');
+    const sendSpy = vi.fn();
+    ws.send = sendSpy;
     service.sendAnalyze('const x = 1;');
-    expect(ws.send).toHaveBeenCalledWith(
+    expect(sendSpy).toHaveBeenCalledWith(
       JSON.stringify({ type: 'analyze', code: 'const x = 1;' })
     );
   });
 
   it('should not reconnect after max attempts', () => {
-    jasmine.clock().install();
+    vi.useFakeTimers();
     service.connect();
     (service as any).reconnectAttempts = 3;
     (service as any).maxReconnectAttempts = 3;
     const ws = (service as any).ws;
     ws.onclose();
-    jasmine.clock().tick(10000);
+    vi.advanceTimersByTime(10000);
     expect((service as any).reconnectAttempts).toBe(3);
-    jasmine.clock().uninstall();
+    vi.useRealTimers();
   });
 
   it('should handle multiple message handlers', () => {
     service.connect();
-    const h1 = jasmine.createSpy('h1');
-    const h2 = jasmine.createSpy('h2');
+    const h1 = vi.fn();
+    const h2 = vi.fn();
     service.onMessage(h1);
     service.onMessage(h2);
     const ws = (service as any).ws;
@@ -89,7 +90,7 @@ describe('AgentWsService', () => {
 
   it('should remove message handler', () => {
     service.connect();
-    const h1 = jasmine.createSpy('h1');
+    const h1 = vi.fn();
     service.onMessage(h1);
     service.removeMessageHandler(h1);
     const ws = (service as any).ws;

@@ -33,7 +33,9 @@ def _run_agent(
 ) -> str:
     agent = agent_factory(llm)
     task = task_factory(agent, *task_args)
-    return str(task.execute())
+    result = task.execute_sync()
+    output = getattr(result, 'raw', None) or str(result)
+    return str(output)
 
 
 async def _run_stage(
@@ -90,7 +92,7 @@ class CrewAgentPipeline:
 
 async def run_pipeline(client_id: str, code: str) -> dict:
     llm = get_llm()
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
 
     audit_result = await _run_stage(
         client_id, loop, "auditor", llm,

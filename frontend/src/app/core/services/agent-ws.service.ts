@@ -48,7 +48,7 @@ export class AgentWsService implements OnDestroy {
     }
 
     this.connectionStatus.set('connecting');
-    this.ws = new WebSocket('/ws/');
+    this.ws = new WebSocket('/ws/agents');
 
     this.ws.onopen = () => {
       this.connectionStatus.set('connected');
