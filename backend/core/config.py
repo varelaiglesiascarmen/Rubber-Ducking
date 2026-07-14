@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -13,6 +13,16 @@ class Settings(BaseSettings):
     ws_receive_timeout: int = Field(default=120, ge=10)
     max_workers: int = Field(default=4, ge=1)
     cors_allowed_origins: list[str] = ["http://localhost:8080", "http://localhost:4200"]
+
+    @field_validator("groq_api_key", mode="after")
+    @classmethod
+    def validate_api_key(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError(
+                "GROQ_API_KEY is not set. "
+                "Create a backend/.env file with GROQ_API_KEY=gsk_..."
+            )
+        return v
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
