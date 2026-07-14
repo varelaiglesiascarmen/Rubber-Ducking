@@ -148,7 +148,8 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   }
 
   private handlePipelineComplete(msg: { result: { audit: string; refactored: string; validation: string } }): void {
-    this.codeOutput.set(msg.result.refactored);
+    const cleaned = msg.result.refactored.replace(/^```\w*\n?|```$/g, '').trim();
+    this.codeOutput.set(cleaned);
     this.isOrchestrating.set(false);
     this.addLog('Pipeline completado exitosamente.');
   }
