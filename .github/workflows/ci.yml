@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create test env file
+        run: echo "GROQ_API_KEY=test" > backend/.env
+
       - name: Build backend
         run: docker compose build backend
 
