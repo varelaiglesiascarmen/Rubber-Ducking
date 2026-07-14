@@ -1,6 +1,3 @@
-/* VARIABLES GLOBALES Y PALETA DE COLORES */
-@custom-media --viewport-md (max-width: 1024px);
-
 :root {
   --bg-main: #080a0f;
   --bg-surface: #111420;
