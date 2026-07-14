@@ -23,10 +23,20 @@ def create_validator_agent(llm) -> Agent:
     )
 
 
-def create_validation_task(agent: Agent, original: str, refactored: str) -> Task:
+_STACK_LABELS = {
+    "angular": "Angular",
+    "react": "React",
+    "vue": "Vue",
+}
+
+
+def create_validation_task(agent: Agent, original: str, refactored: str, stack: str = "angular", objective: str = "signal") -> Task:
+    stack_label = _STACK_LABELS.get(stack, "TypeScript")
     diff = compute_diff(original, refactored)
     return Task(
-        description=f"""Validate the refactored code and provide a final report.
+        description=f"""Validate the refactored {stack_label} code and provide a final report.
+
+Objective: {objective}
 
 Original code:
 {safe_code_block("typescript", original)}
@@ -41,7 +51,7 @@ Diff:
 
 Check for:
 1. Syntax correctness
-2. Proper Signals usage (signal, computed, effect, input, output)
+2. Proper use of {stack_label} patterns for '{objective}'
 3. Missing imports
 4. Type safety
 5. Breaking changes

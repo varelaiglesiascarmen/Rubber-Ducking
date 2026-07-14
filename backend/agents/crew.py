@@ -92,27 +92,27 @@ async def _run_stage(
 
 
 class CrewAgentPipeline:
-    async def run(self, client_id: str, code: str) -> dict:
-        return await run_pipeline(client_id, code)
+    async def run(self, client_id: str, code: str, stack: str = "angular", objective: str = "signal") -> dict:
+        return await run_pipeline(client_id, code, stack, objective)
 
 
-async def run_pipeline(client_id: str, code: str) -> dict:
+async def run_pipeline(client_id: str, code: str, stack: str = "angular", objective: str = "signal") -> dict:
     llm = get_llm()
     loop = asyncio.get_running_loop()
 
     audit_result = await _run_stage(
         client_id, loop, "auditor", llm,
-        create_auditor_agent, create_audit_task, code
+        create_auditor_agent, create_audit_task, code, stack, objective
     )
 
     refactored_result = await _run_stage(
         client_id, loop, "programmer", llm,
-        create_programmer_agent, create_refactoring_task, code, audit_result
+        create_programmer_agent, create_refactoring_task, code, audit_result, stack, objective
     )
 
     validation_result = await _run_stage(
         client_id, loop, "validator", llm,
-        create_validator_agent, create_validation_task, code, refactored_result
+        create_validator_agent, create_validation_task, code, refactored_result, stack, objective
     )
 
     return {

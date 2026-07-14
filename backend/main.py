@@ -77,6 +77,16 @@ async def agent_websocket(ws: WebSocket):
                     continue
 
                 code = data.get("code", "")
+                stack = data.get("stack", "angular")
+                objective = data.get("objective", "signal")
+
+                if not code.strip():
+                    await manager.send_json(client_id, {
+                        "type": "error",
+                        "message": "Code is required"
+                    })
+                    continue
+
                 if len(code) > 50_000:
                     await manager.send_json(client_id, {
                         "type": "error",
@@ -88,7 +98,7 @@ async def agent_websocket(ws: WebSocket):
                     client_id, "system", "running", "Pipeline started"
                 )
 
-                result = await pipeline.run(client_id, code)
+                result = await pipeline.run(client_id, code, stack, objective)
 
                 await manager.send_json(client_id, {
                     "type": "pipeline_complete",
