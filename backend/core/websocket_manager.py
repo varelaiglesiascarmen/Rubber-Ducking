@@ -24,7 +24,13 @@ class ConnectionManager(WSManager):
 
     async def disconnect(self, client_id: str) -> None:
         async with self._lock:
-            self.active.pop(client_id, None)
+            entry = self.active.pop(client_id, None)
+        if entry:
+            ws, _ = entry
+            try:
+                await ws.close(code=1000)
+            except Exception:
+                pass
 
     async def update_activity(self, client_id: str) -> None:
         async with self._lock:
@@ -43,7 +49,9 @@ class ConnectionManager(WSManager):
                 await self.disconnect(client_id)
 
     async def broadcast(self, data: dict) -> None:
-        for client_id in list(self.active.keys()):
+        async with self._lock:
+            client_ids = list(self.active.keys())
+        for client_id in client_ids:
             await self.send_json(client_id, data)
 
     async def stream_agent_status(
@@ -86,7 +94,20 @@ class ConnectionManager(WSManager):
                         if now - ts > settings.ws_inactivity_timeout
                     ]
                 for cid in stale:
-                    await self.disconnect(cid)
+                    async with self._lock:
+                        entry = self.active.get(cid)
+                        if not entry:
+                            continue
+                        _, ts = entry
+                        if now - ts <= settings.ws_inactivity_timeout:
+                            continue
+                        self.active.pop(cid)
+                    if entry:
+                        ws, _ = entry
+                        try:
+                            await ws.close(code=1000)
+                        except Exception:
+                            pass
         except asyncio.CancelledError:
             pass
 
