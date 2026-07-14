@@ -44,27 +44,25 @@
     <section class="config-group">
       <h3 class="section-title">2. Objetivo de IA</h3>
       <div class="objectives-list">
-        <button class="card-option" [class.active]="selectedObjective() === 'refactor'"
-                (click)="setObjective('refactor')">
-          <h4>Refactorizar a Signals</h4>
-          <p>Convierte lógica legacy a Signals reactivas</p>
-        </button>
-        <button class="card-option" [class.active]="selectedObjective() === 'optimize'"
-                (click)="setObjective('optimize')">
-          <h4>Optimizar Rendimiento</h4>
-          <p>Mejora detección de cambios y bundle</p>
-        </button>
-        <button class="card-option" [class.active]="selectedObjective() === 'migrate'"
-                (click)="setObjective('migrate')">
-          <h4>Migrar a Standalone</h4>
-          <p>Elimina módulos y adopta standalone</p>
-        </button>
+        @for (obj of currentObjectives(); track obj.key) {
+          <button class="card-option"
+                  [class.active]="selectedObjective() === obj.key"
+                  [disabled]="!isObjCompatible(obj.key)"
+                  [matTooltip]="objTooltip(obj.key)"
+                  [matTooltipDisabled]="isObjCompatible(obj.key)"
+                  (click)="setObjective(obj.key)">
+            <h4>{{ obj.label }}</h4>
+            <p>{{ obj.desc }}</p>
+          </button>
+        }
       </div>
     </section>
 
     <footer class="sidebar-footer">
       <button class="btn-orchestrate" (click)="toggleOrchestration()"
-              [disabled]="connectionStatus() === 'connecting'">
+              [disabled]="!canOrchestrate() || connectionStatus() === 'connecting'"
+              [matTooltip]="orchestrationTooltip()"
+              [matTooltipDisabled]="canOrchestrate()">
         {{ isOrchestrating() ? 'Detener' : 'Iniciar' }} Orquestación
       </button>
     </footer>

@@ -136,6 +136,17 @@ mat-sidenav-content.main-content {
               0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
+.card-option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.card-option:disabled:hover {
+  background-color: var(--bg-main);
+  border-color: var(--border-color);
+}
+
 .card-option h4 {
   color: var(--text-main);
   font-size: 0.88rem;

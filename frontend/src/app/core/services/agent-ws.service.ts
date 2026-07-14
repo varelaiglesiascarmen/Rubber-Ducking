@@ -98,9 +98,9 @@ export class AgentWsService implements OnDestroy {
     this.connectionStatus.set('disconnected');
   }
 
-  sendAnalyze(code: string): void {
+  sendAnalyze(code: string, stack: string = 'angular', objective: string = 'signal'): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({ type: 'analyze', code }));
+      this.ws.send(JSON.stringify({ type: 'analyze', code, stack, objective }));
     }
   }
 

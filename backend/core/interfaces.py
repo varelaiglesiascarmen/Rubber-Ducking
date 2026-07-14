@@ -4,7 +4,7 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class AgentPipeline(Protocol):
-    async def run(self, client_id: str, code: str) -> dict: ...
+    async def run(self, client_id: str, code: str, stack: str = "angular", objective: str = "signal") -> dict: ...
 
 
 class WSManager(ABC):

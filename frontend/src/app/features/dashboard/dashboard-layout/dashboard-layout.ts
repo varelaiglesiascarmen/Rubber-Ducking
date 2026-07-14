@@ -1,6 +1,13 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AgentWsService, WsMessage } from '../../../core/services/agent-ws.service';
+
+interface ObjectiveOption {
+  key: string;
+  label: string;
+  desc: string;
+}
 
 interface AgentState {
   name: string;
@@ -8,16 +15,56 @@ interface AgentState {
   label: string;
 }
 
+const OBJECTIVES_BY_STACK: Record<string, ObjectiveOption[]> = {
+  angular: [
+    { key: 'signal',      label: 'Refactorizar a Signals',       desc: 'Convierte lógica legacy a Signals reactivas' },
+    { key: 'optimize',    label: 'Optimizar Rendimiento',        desc: 'Mejora detección de cambios y bundle' },
+    { key: 'standalone',  label: 'Migrar a Standalone',          desc: 'Elimina módulos y adopta standalone' },
+  ],
+  react: [
+    { key: 'hooks',       label: 'Refactorizar a Hooks',         desc: 'Convierte clases a funciones con Hooks' },
+    { key: 'optimize',    label: 'Optimizar Rendimiento',        desc: 'Mejora renderizado y bundle' },
+    { key: 'server',      label: 'Migrar a Server Components',   desc: 'Adopta React Server Components' },
+  ],
+  vue: [
+    { key: 'setup',       label: 'Refactorizar a Script Setup',  desc: 'Convierte Options API a Composition API' },
+    { key: 'optimize',    label: 'Optimizar Rendimiento',        desc: 'Mejora reactividad y bundle' },
+    { key: 'composition', label: 'Migrar a Composition API',     desc: 'Adopta patrón Composition API' },
+  ],
+};
+
+const STACK_LABELS: Record<string, string> = {
+  angular: 'Angular 21',
+  react: 'React 19',
+  vue: 'Vue 4',
+};
+
+const COMPATIBLE_OBJECTIVES: Record<string, string[]> = {
+  angular: ['signal', 'optimize', 'standalone'],
+  react: ['hooks', 'optimize', 'server'],
+  vue: ['setup', 'optimize', 'composition'],
+};
+
+const FRAMEWORK_DETECTORS: [RegExp, string][] = [
+  [/from\s+['"]@angular\/|@Component|@NgModule|@Injectable/, 'angular'],
+  [/from\s+['"]react['"]|import\s+React|\.jsx['"]/, 'react'],
+  [/from\s+['"]vue['"]|defineComponent|createApp|\.vue['"]/, 'vue'],
+];
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [MatSidenavModule],
+  imports: [MatSidenavModule, MatTooltipModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })
 export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public selectedStack = signal<string>('angular');
-  public selectedObjective = signal<string>('refactor');
+  public selectedObjective = signal<string>('signal');
+
+  public currentObjectives = computed<ObjectiveOption[]>(() =>
+    OBJECTIVES_BY_STACK[this.selectedStack()] ?? OBJECTIVES_BY_STACK['angular']
+  );
 
   public isOrchestrating = signal<boolean>(false);
   public connectionStatus = computed(() => this.ws.connectionStatus());
@@ -27,10 +74,20 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
     return 'BillAI en espera.';
   });
 
+  public missingRequirements = computed<string[]>(() => {
+    const missing: string[] = [];
+    if (!this.selectedStack()) missing.push('stack');
+    if (!this.selectedObjective()) missing.push('objetivo');
+    if (!this.codeInput().trim()) missing.push('código original');
+    return missing;
+  });
+
+  public canOrchestrate = computed(() => this.missingRequirements().length === 0);
+
   public agents = signal<AgentState[]>([
     { name: 'auditor', status: 'idle', label: 'Auditor de Sintaxis' },
-    { name: 'programmer', status: 'idle', label: 'Programador Signals' },
-    { name: 'validator', status: 'idle', label: 'Validador AST' }
+    { name: 'programmer', status: 'idle', label: 'Programador' },
+    { name: 'validator', status: 'idle', label: 'Validador' },
   ]);
 
   public consoleLogs = signal<string[]>([]);
@@ -54,18 +111,61 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
 
   public setStack(stack: string): void {
     this.selectedStack.set(stack);
+    const compat = COMPATIBLE_OBJECTIVES[stack] ?? [];
+    if (!compat.includes(this.selectedObjective())) {
+      this.selectedObjective.set(compat[0] ?? '');
+    }
   }
 
   public setObjective(obj: string): void {
     this.selectedObjective.set(obj);
   }
 
+  public isObjCompatible(obj: string): boolean {
+    return (COMPATIBLE_OBJECTIVES[this.selectedStack()] ?? []).includes(obj);
+  }
+
+  public objTooltip(obj: string): string {
+    return `Opción incompatible con ${STACK_LABELS[this.selectedStack()] ?? this.selectedStack()}`;
+  }
+
+  public orchestrationTooltip(): string {
+    const missing = this.missingRequirements();
+    if (missing.length === 0) return '';
+    return `Falta: ${missing.join(', ')}`;
+  }
+
   public toggleOrchestration(): void {
     if (this.isOrchestrating()) {
       this.stopOrchestration();
-    } else {
-      this.startOrchestration();
+      return;
     }
+
+    const missing = this.missingRequirements();
+    if (missing.length > 0) {
+      alert(`No se puede iniciar la orquestación. Faltan: ${missing.join(', ')}`);
+      return;
+    }
+
+    const detected = this.detectFramework(this.codeInput());
+    if (detected && detected !== this.selectedStack()) {
+      const detectedLabel = STACK_LABELS[detected] ?? detected;
+      const selectedLabel = STACK_LABELS[this.selectedStack()] ?? this.selectedStack();
+      if (!window.confirm(
+        `El código parece ser de ${detectedLabel}, pero has seleccionado ${selectedLabel}. ¿Quieres continuar de todas formas?`
+      )) {
+        return;
+      }
+    }
+
+    this.startOrchestration();
+  }
+
+  private detectFramework(code: string): string | null {
+    for (const [regex, framework] of FRAMEWORK_DETECTORS) {
+      if (regex.test(code)) return framework;
+    }
+    return null;
   }
 
   private startOrchestration(): void {
@@ -78,12 +178,12 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
       this._pollInterval = setInterval(() => {
         if (this.ws.connectionStatus() === 'connected') {
           this._clearPolling();
-          this.ws.sendAnalyze(this.codeInput());
+          this.ws.sendAnalyze(this.codeInput(), this.selectedStack(), this.selectedObjective());
         }
       }, 100);
       this._pollTimeout = setTimeout(() => this._clearPolling(), 10000);
     } else {
-      this.ws.sendAnalyze(this.codeInput());
+      this.ws.sendAnalyze(this.codeInput(), this.selectedStack(), this.selectedObjective());
     }
   }
 
