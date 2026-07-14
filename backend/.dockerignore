@@ -5,3 +5,4 @@ __pycache__
 .gitignore
 *.md
 .pytest_cache
+tests/
