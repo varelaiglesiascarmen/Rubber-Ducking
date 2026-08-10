@@ -82,6 +82,29 @@ mat-sidenav-content.main-content {
   overflow: hidden;
 }
 
+/* TOOLTIP DE ANGULAR MATERIAL (OVERRIDE PARA TEMARIZARLO) */
+.mat-mdc-tooltip {
+  --mat-tooltip-container-color: var(--bg-surface);
+  --mdc-tooltip-container-color: var(--bg-surface);
+}
+
+.mat-mdc-tooltip-panel {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45),
+              0 0 12px rgba(255, 126, 187, 0.08);
+}
+
+.mat-mdc-tooltip .mdc-tooltip__surface {
+  color: var(--text-main);
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+}
+
+.mat-mdc-tooltip .mdc-tooltip__surface::after {
+  color: var(--pink-primary);
+}
+
 /* TIPOGRAFIAS Y TITULOS DE LOGO */
 .brand-title {
   font-size: 1.25rem;
