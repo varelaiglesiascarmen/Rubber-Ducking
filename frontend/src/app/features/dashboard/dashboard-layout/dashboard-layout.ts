@@ -1,6 +1,7 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 import { AgentWsService, WsMessage } from '../../../core/services/agent-ws.service';
 
 interface ObjectiveOption {
@@ -54,7 +55,7 @@ const FRAMEWORK_DETECTORS: [RegExp, string][] = [
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [MatSidenavModule, MatTooltipModule],
+  imports: [MatSidenavModule, MatTooltipModule, MatIconModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })
@@ -93,6 +94,9 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public consoleLogs = signal<string[]>([]);
   public codeInput = signal<string>('');
   public codeOutput = signal<string>('');
+  public copied = signal<boolean>(false);
+
+  private copiedTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private handler = (msg: WsMessage) => this.handleMessage(msg);
   private _pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -107,6 +111,39 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ws.removeMessageHandler(this.handler);
     this._clearPolling();
+    if (this.copiedTimeout !== null) {
+      clearTimeout(this.copiedTimeout);
+      this.copiedTimeout = null;
+    }
+  }
+
+  public async copyOutput(): Promise<void> {
+    const code = this.codeOutput().trim();
+    if (!code) return;
+
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch {
+      this.fallbackCopy(code);
+    }
+
+    this.copied.set(true);
+    if (this.copiedTimeout !== null) clearTimeout(this.copiedTimeout);
+    this.copiedTimeout = setTimeout(() => this.copied.set(false), 2000);
+  }
+
+  private fallbackCopy(text: string): void {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+    } finally {
+      document.body.removeChild(ta);
+    }
   }
 
   public setStack(stack: string): void {
