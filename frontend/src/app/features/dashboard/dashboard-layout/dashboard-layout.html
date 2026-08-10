@@ -90,12 +90,21 @@
       <section class="editor-panel">
         <header class="editor-header">
           <span>Código Refactorizado por Agentes</span>
-          <span class="panel-status" [class.active]="isOrchestrating()">
-            {{ isOrchestrating() ? 'Procesando...' : 'Inactivo' }}
+          <span class="header-tools">
+            <button class="btn-copy-code" (click)="copyOutput()"
+                    [class.copied]="copied()"
+                    [disabled]="!codeOutput().trim()"
+                    [attr.aria-label]="copied() ? 'Código copiado' : 'Copiar código refactorizado'">
+              <mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
+              {{ copied() ? 'Copiado' : 'Copiar' }}
+            </button>
+            <span class="panel-status" [class.active]="isOrchestrating()">
+              {{ isOrchestrating() ? 'Procesando...' : 'Inactivo' }}
+            </span>
           </span>
         </header>
         <div class="code-content">
-          <pre class="code-output">{{ codeOutput() || '// El código refactorizado aparecerá aquí después de la orquestación.' }}</pre>
+          <pre class="code-output scrollable">{{ codeOutput() || '// El código refactorizado aparecerá aquí después de la orquestación.' }}</pre>
         </div>
       </section>
 
