@@ -1,6 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { AgentWsService, WsMessage } from './agent-ws.service';
 
+function emitMessage(ws: WebSocket, data: string): void {
+  ws.onmessage?.(new MessageEvent('message', { data }));
+}
+
 describe('AgentWsService', () => {
   let service: AgentWsService;
 
@@ -30,10 +34,10 @@ describe('AgentWsService', () => {
 
     const ws = service._test().ws;
     expect(ws).toBeTruthy();
-    ws!.onmessage({ data: JSON.stringify({
+    emitMessage(ws!, JSON.stringify({
       type: 'pipeline_complete',
       result: { audit: 'ok', refactored: 'ok', validation: 'ok' }
-    })});
+    }));
     expect(handler).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'pipeline_complete' })
     );
@@ -44,7 +48,7 @@ describe('AgentWsService', () => {
     const handler = vi.fn();
     service.onMessage(handler);
     const ws = service._test().ws;
-    ws!.onmessage({ data: 'not json' });
+    emitMessage(ws!, 'not json');
     expect(handler).not.toHaveBeenCalled();
   });
 
@@ -61,7 +65,7 @@ describe('AgentWsService', () => {
     ws!.send = sendSpy;
     service.sendAnalyze('const x = 1;');
     expect(sendSpy).toHaveBeenCalledWith(
-      JSON.stringify({ type: 'analyze', code: 'const x = 1;' })
+      JSON.stringify({ type: 'analyze', code: 'const x = 1;', stack: 'angular', objective: 'signal' })
     );
   });
 
@@ -84,7 +88,7 @@ describe('AgentWsService', () => {
     service.onMessage(h1);
     service.onMessage(h2);
     const ws = service._test().ws;
-    ws!.onmessage({ data: JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }) });
+    emitMessage(ws!, JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }));
     expect(h1).toHaveBeenCalled();
     expect(h2).toHaveBeenCalled();
   });
@@ -95,7 +99,7 @@ describe('AgentWsService', () => {
     service.onMessage(h1);
     service.removeMessageHandler(h1);
     const ws = service._test().ws;
-    ws!.onmessage({ data: JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }) });
+    emitMessage(ws!, JSON.stringify({ type: 'agent_status', agent: 'a', status: 'running', message: '' }));
     expect(h1).not.toHaveBeenCalled();
   });
 });

@@ -15,6 +15,11 @@ describe('DashboardLayoutComponent', () => {
   };
 
   beforeEach(async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+
     wsMock = {
       connectionStatus: vi.fn().mockReturnValue('disconnected'),
       connect: vi.fn(),
@@ -44,11 +49,13 @@ describe('DashboardLayoutComponent', () => {
   });
 
   it('should toggle orchestration on button click', () => {
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
     expect(wsMock.connect).toHaveBeenCalled();
   });
 
   it('should stop orchestration on second toggle', () => {
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
     component.toggleOrchestration();
     expect(wsMock.disconnect).toHaveBeenCalled();
@@ -96,8 +103,43 @@ describe('DashboardLayoutComponent', () => {
     component.agents.update(list =>
       list.map(a => ({ ...a, status: 'running' as const }))
     );
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
     component.toggleOrchestration();
     expect(component.agents().every(a => a.status === 'idle')).toBe(true);
+  });
+
+  it('should copy output to clipboard', async () => {
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+    component.codeOutput.set('const x = signal(1);');
+
+    await component.copyOutput();
+
+    expect(writeText).toHaveBeenCalledWith('const x = signal(1);');
+    expect(component.copied()).toBe(true);
+  });
+
+  it('should not copy when output is empty', async () => {
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+    component.codeOutput.set('');
+
+    await component.copyOutput();
+
+    expect(writeText).not.toHaveBeenCalled();
+    expect(component.copied()).toBe(false);
+  });
+
+  it('should fallback copy when clipboard API is unavailable', async () => {
+    vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValueOnce(new Error('blocked'));
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: vi.fn().mockReturnValue(true),
+    });
+    component.codeOutput.set('const x = 1;');
+
+    await component.copyOutput();
+
+    expect(document.execCommand).toHaveBeenCalledWith('copy');
+    expect(component.copied()).toBe(true);
   });
 });
