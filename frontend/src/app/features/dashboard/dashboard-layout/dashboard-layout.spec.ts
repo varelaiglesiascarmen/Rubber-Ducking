@@ -43,12 +43,25 @@ describe('DashboardLayoutComponent', () => {
     expect(agents.every(a => a.status === 'idle')).toBe(true);
   });
 
+  it('should start with sidebar open', () => {
+    expect(component.sidebarOpen()).toBe(true);
+  });
+
+  it('should toggle the sidebar', () => {
+    component.toggleSidebar();
+    expect(component.sidebarOpen()).toBe(false);
+    component.toggleSidebar();
+    expect(component.sidebarOpen()).toBe(true);
+  });
+
   it('should toggle orchestration on button click', () => {
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
     expect(wsMock.connect).toHaveBeenCalled();
   });
 
   it('should stop orchestration on second toggle', () => {
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
     component.toggleOrchestration();
     expect(wsMock.disconnect).toHaveBeenCalled();
@@ -96,6 +109,7 @@ describe('DashboardLayoutComponent', () => {
     component.agents.update(list =>
       list.map(a => ({ ...a, status: 'running' as const }))
     );
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
     component.toggleOrchestration();
     expect(component.agents().every(a => a.status === 'idle')).toBe(true);

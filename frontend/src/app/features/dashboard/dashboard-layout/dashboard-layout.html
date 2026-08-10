@@ -8,6 +8,11 @@
   </div>
 
   <div class="header-actions">
+    <button class="btn-toggle-sidebar" (click)="toggleSidebar()"
+            [attr.aria-label]="sidebarOpen() ? 'Ocultar panel de configuración' : 'Mostrar panel de configuración'"
+            [matTooltip]="sidebarOpen() ? 'Ocultar configuración' : 'Mostrar configuración'">
+      <mat-icon>{{ sidebarOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </button>
     <span class="status-badge" [class.active]="isOrchestrating()"
           [class.connecting]="connectionStatus() === 'connecting'">
       {{ statusLabel() }}
@@ -17,7 +22,11 @@
 
 <mat-sidenav-container class="app-container">
 
-  <mat-sidenav mode="side" opened class="sidebar">
+  <mat-sidenav mode="side" [opened]="sidebarOpen()" class="sidebar">
+    <div class="sidebar-handle" (click)="toggleSidebar()"
+         [attr.aria-label]="sidebarOpen() ? 'Ocultar panel de configuración' : 'Mostrar panel de configuración'">
+      <mat-icon>{{ sidebarOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </div>
 
     <section class="config-group">
       <h3 class="section-title">1. Configuración</h3>

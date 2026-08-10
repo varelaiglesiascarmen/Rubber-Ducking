@@ -1,6 +1,7 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 import { AgentWsService, WsMessage } from '../../../core/services/agent-ws.service';
 
 interface ObjectiveOption {
@@ -54,13 +55,14 @@ const FRAMEWORK_DETECTORS: [RegExp, string][] = [
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [MatSidenavModule, MatTooltipModule],
+  imports: [MatSidenavModule, MatTooltipModule, MatIconModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css'
 })
 export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public selectedStack = signal<string>('angular');
   public selectedObjective = signal<string>('signal');
+  public sidebarOpen = signal<boolean>(true);
 
   public currentObjectives = computed<ObjectiveOption[]>(() =>
     OBJECTIVES_BY_STACK[this.selectedStack()] ?? OBJECTIVES_BY_STACK['angular']
@@ -73,6 +75,10 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
     if (this.isOrchestrating()) return 'Orquestando con BillAI...';
     return 'BillAI en espera.';
   });
+
+  public toggleSidebar(): void {
+    this.sidebarOpen.update(open => !open);
+  }
 
   public missingRequirements = computed<string[]>(() => {
     const missing: string[] = [];
