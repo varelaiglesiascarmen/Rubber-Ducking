@@ -270,6 +270,27 @@
   margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.btn-toggle-sidebar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-toggle-sidebar:hover {
+  border-color: var(--pink-primary);
+  color: var(--pink-primary);
+  box-shadow: 0 0 12px rgba(255, 126, 187, 0.2);
 }
 
 .status-badge {
@@ -295,6 +316,30 @@
 
 .sidebar-footer {
   margin-top: auto;
+}
+
+.sidebar-handle {
+  position: absolute;
+  top: 12px;
+  right: -14px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-surface-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  z-index: 10;
+  transition: var(--transition-smooth);
+}
+
+.sidebar-handle:hover {
+  color: var(--pink-primary);
+  border-color: var(--pink-primary);
+  box-shadow: 0 0 12px rgba(255, 126, 187, 0.2);
 }
 
 .btn-orchestrate {
@@ -361,7 +406,9 @@
 
   .btn-orchestrate,
   .btn-clear-console,
-  .card-option {
+  .card-option,
+  .btn-toggle-sidebar,
+  .sidebar-handle {
     transition: none;
   }
 }

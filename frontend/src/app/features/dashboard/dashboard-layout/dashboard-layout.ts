@@ -62,6 +62,7 @@ const FRAMEWORK_DETECTORS: [RegExp, string][] = [
 export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public selectedStack = signal<string>('angular');
   public selectedObjective = signal<string>('signal');
+  public sidebarOpen = signal<boolean>(true);
 
   public currentObjectives = computed<ObjectiveOption[]>(() =>
     OBJECTIVES_BY_STACK[this.selectedStack()] ?? OBJECTIVES_BY_STACK['angular']
@@ -74,6 +75,10 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
     if (this.isOrchestrating()) return 'Orquestando con BillAI...';
     return 'BillAI en espera.';
   });
+
+  public toggleSidebar(): void {
+    this.sidebarOpen.update(open => !open);
+  }
 
   public missingRequirements = computed<string[]>(() => {
     const missing: string[] = [];

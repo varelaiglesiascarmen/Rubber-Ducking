@@ -48,6 +48,17 @@ describe('DashboardLayoutComponent', () => {
     expect(agents.every(a => a.status === 'idle')).toBe(true);
   });
 
+  it('should start with sidebar open', () => {
+    expect(component.sidebarOpen()).toBe(true);
+  });
+
+  it('should toggle the sidebar', () => {
+    component.toggleSidebar();
+    expect(component.sidebarOpen()).toBe(false);
+    component.toggleSidebar();
+    expect(component.sidebarOpen()).toBe(true);
+  });
+
   it('should toggle orchestration on button click', () => {
     component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
     component.toggleOrchestration();
