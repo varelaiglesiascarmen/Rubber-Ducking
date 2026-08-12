@@ -1,8 +1,15 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import { firstValueFrom } from 'rxjs';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { AgentWsService, WsMessage } from '../../../core/services/agent-ws.service';
+import {
+  CrossFrameworkDialogComponent,
+  CrossFrameworkDialogData,
+} from './cross-framework-dialog';
 
 interface ObjectiveOption {
   key: string;
@@ -52,17 +59,36 @@ const FRAMEWORK_DETECTORS: [RegExp, string][] = [
   [/from\s+['"]vue['"]|defineComponent|createApp|\.vue['"]/, 'vue'],
 ];
 
+const CODE_KEYWORDS = /\b(?:import|from|function|class|const|let|var|return|def|interface|type|export|require|new)\b|[{}();<>]/;
+
+function looksLikeCode(code: string): boolean {
+  const meaningful = code.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '').trim();
+  if (meaningful.length < 8) return false;
+  return CODE_KEYWORDS.test(meaningful);
+}
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
   imports: [MatSidenavModule, MatTooltipModule, MatIconModule],
   templateUrl: './dashboard-layout.html',
-  styleUrl: './dashboard-layout.css'
+  styleUrl: './dashboard-layout.css',
+  animations: [
+    trigger('objectiveFlash', [
+      transition('* => *', [
+        query('.card-option', [
+          style({ opacity: 0, transform: 'translateX(-14px)' }),
+          stagger(90, animate('420ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateX(0)' }))),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public selectedStack = signal<string>('angular');
   public selectedObjective = signal<string>('signal');
   public sidebarOpen = signal<boolean>(true);
+  public reducedMotion = signal<boolean>(false);
 
   public currentObjectives = computed<ObjectiveOption[]>(() =>
     OBJECTIVES_BY_STACK[this.selectedStack()] ?? OBJECTIVES_BY_STACK['angular']
@@ -84,7 +110,9 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
     const missing: string[] = [];
     if (!this.selectedStack()) missing.push('stack');
     if (!this.selectedObjective()) missing.push('objetivo');
-    if (!this.codeInput().trim()) missing.push('código original');
+    const code = this.codeInput().trim();
+    if (!code) missing.push('código original');
+    else if (!looksLikeCode(code)) missing.push('código válido');
     return missing;
   });
 
@@ -107,9 +135,12 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   private _pollInterval: ReturnType<typeof setInterval> | null = null;
   private _pollTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private ws: AgentWsService) {}
+  constructor(private ws: AgentWsService, public dialog: MatDialog) {}
 
   ngOnInit(): void {
+    this.reducedMotion.set(
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
     this.ws.onMessage(this.handler);
   }
 
@@ -177,7 +208,7 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
     return `Falta: ${missing.join(', ')}`;
   }
 
-  public toggleOrchestration(): void {
+  public toggleOrchestration(): void | Promise<void> {
     if (this.isOrchestrating()) {
       this.stopOrchestration();
       return;
@@ -189,13 +220,26 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
       return;
     }
 
+    return this.maybeConfirmFramework();
+  }
+
+  private async maybeConfirmFramework(): Promise<void> {
     const detected = this.detectFramework(this.codeInput());
     if (detected && detected !== this.selectedStack()) {
       const detectedLabel = STACK_LABELS[detected] ?? detected;
       const selectedLabel = STACK_LABELS[this.selectedStack()] ?? this.selectedStack();
-      if (!window.confirm(
-        `El código parece ser de ${detectedLabel}, pero has seleccionado ${selectedLabel}. ¿Quieres continuar de todas formas?`
-      )) {
+      const data: CrossFrameworkDialogData = { detectedLabel, selectedLabel };
+      const choice = await firstValueFrom(
+        this.dialog
+          .open(CrossFrameworkDialogComponent, { data, autoFocus: false })
+          .afterClosed()
+      );
+
+      if (choice === 'switch') {
+        this.setStack(detected);
+        return;
+      }
+      if (choice !== 'migrate') {
         return;
       }
     }
