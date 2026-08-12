@@ -17,11 +17,12 @@
 
 <mat-sidenav-container class="app-container">
 
-  <mat-sidenav mode="side" [opened]="sidebarOpen()" class="sidebar">
+  <mat-sidenav [mode]="isCompact() ? 'over' : 'side'" [opened]="sidebarOpen()" class="sidebar">
     <button class="btn-close-sidebar" (click)="toggleSidebar()"
             [attr.aria-label]="'Ocultar panel de configuración'"
-            [matTooltip]="'Ocultar configuración'">
-      <mat-icon>close</mat-icon>
+            [matTooltip]="'Ocultar configuración'"
+            matTooltipShowDelay="2000">
+      <mat-icon>chevron_left</mat-icon>
     </button>
 
     <section class="config-group">
@@ -68,6 +69,7 @@
       <button class="btn-orchestrate" (click)="toggleOrchestration()"
               [disabled]="!canOrchestrate() || connectionStatus() === 'connecting'"
               [matTooltip]="orchestrationTooltip()"
+              matTooltipShowDelay="2000"
               [matTooltipDisabled]="canOrchestrate()">
         {{ isOrchestrating() ? 'Detener' : 'Iniciar' }} Orquestación
       </button>
@@ -77,18 +79,18 @@
 
   <mat-sidenav-content class="main-content">
 
-    @if (!sidebarOpen()) {
-      <button class="btn-open-sidebar" (click)="toggleSidebar()"
-              [attr.aria-label]="'Mostrar panel de configuración'"
-              [matTooltip]="'Mostrar configuración'">
-        <mat-icon>menu</mat-icon>
-      </button>
-    }
-
     <div class="workspace-layout">
 
       <section class="editor-panel">
         <header class="editor-header active-panel">
+          @if (!sidebarOpen()) {
+            <button class="btn-open-sidebar" (click)="toggleSidebar()"
+                    [attr.aria-label]="'Mostrar panel de configuración'"
+                    [matTooltip]="'Mostrar configuración'"
+                    matTooltipShowDelay="2000">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
           <span>Código Original</span>
           <span class="panel-mode">Lectura / Escritura</span>
         </header>

@@ -67,13 +67,18 @@ mat-sidenav-container.app-container {
 
 mat-sidenav.sidebar {
   width: 280px;
-  position: relative;
   background-color: var(--bg-surface) !important;
   border-right: 1px solid var(--border-color) !important;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+mat-sidenav.sidebar .mat-drawer-inner-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 mat-sidenav-content.main-content {
@@ -86,26 +91,22 @@ mat-sidenav-content.main-content {
 
 /* TOOLTIP DE ANGULAR MATERIAL (OVERRIDE PARA TEMARIZARLO) */
 .mat-mdc-tooltip {
-  --mat-tooltip-container-color: var(--pink-primary);
-  --mdc-tooltip-container-color: var(--pink-primary);
+  --mat-tooltip-container-color: rgba(255, 126, 187, 0.15);
+  --mdc-tooltip-container-color: rgba(255, 126, 187, 0.15);
 }
 
 .mat-mdc-tooltip-panel {
-  border: 1px solid var(--pink-neon);
+  border: 1px solid rgba(255, 64, 159, 0.55);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45),
-              0 0 12px rgba(255, 126, 187, 0.25);
+  backdrop-filter: blur(6px);
+  box-shadow: none;
 }
 
 .mat-mdc-tooltip .mdc-tooltip__surface {
-  color: #2a0a1a;
+  color: var(--text-main);
   font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.01em;
-}
-
-.mat-mdc-tooltip .mdc-tooltip__surface::after {
-  color: var(--pink-neon);
 }
 
 /* DIALOG DE ANGULAR MATERIAL (OVERRIDE PARA TEMA DARK) */

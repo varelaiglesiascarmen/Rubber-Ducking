@@ -84,3 +84,21 @@ GROQ_MODEL=llama3-70b-8192
 - **Fondos:** ultra oscuros #080a0f, superficies #111420
 - **Acentos:** rosa #ff7ebb, lavanda #cba3f9
 - **Layout:** 3 columnas (config | editores gemelos | monitoreo)
+
+## UI VERIFICADO EN LOCAL (no tocar salvo petición explícita)
+
+- **Iconos:** fuente Material Icons cargada en `frontend/src/index.html`; el CSP
+  del proxy (`nginx-proxy.conf`) permite `fonts.googleapis.com`/`fonts.gstatic.com`.
+- **Copiar código refactorizado:** icono plano `content_copy` (sin caja) anclado
+  a la ventana de salida, con fallback `execCommand`.
+- **Layout 3 columnas:** sidebar usa `position:relative` en
+  `.mat-drawer-inner-container` (NO en el drawer). Editores y "Flujo de Trabajo"
+  van a la derecha del sidebar y el scroll es interno por panel
+  (`min-height:0`/`minmax(0,1fr)` en breakpoints).
+- **Sidebar:** colapsa/abre con `chevron_left`/`chevron_right`, mode `over` en
+  móvil + auto-cierre en ≤1024px. Tooltips con Delay 2000ms.
+- **Animación objetivos dinámicos:** `@objectiveFlash` con `:enter`/`:leave`
+  (solo se muestran los objetivos del stack activo).
+
+Convenciones: `main` está capada (solo merge vía PR); merges con
+`gh pr merge --squash --delete-branch --admin` tras verificación en local.

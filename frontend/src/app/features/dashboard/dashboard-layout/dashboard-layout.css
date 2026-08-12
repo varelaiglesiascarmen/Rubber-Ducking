@@ -2,12 +2,16 @@
   display: grid;
   grid-template-columns: 1fr 1fr 300px;
   height: 100%;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
 .editor-panel {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
   border-right: 1px solid var(--border-color);
 }
@@ -52,6 +56,7 @@
 
 .code-content {
   flex: 1;
+  min-height: 0;
   position: relative;
   padding: 0;
   font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace;
@@ -134,6 +139,8 @@
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -324,20 +331,18 @@
 }
 
 .btn-open-sidebar {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 32px;
-  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  align-self: center;
   background: none;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   color: var(--text-muted);
   cursor: pointer;
-  z-index: 20;
+  margin-right: 10px;
   transition: var(--transition-smooth);
 }
 
@@ -396,12 +401,26 @@
 @media (max-width: 1024px) {
   .workspace-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr auto;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
   }
 
   .agents-sidebar {
     border-left: none;
     border-top: 1px solid var(--border-color);
+  }
+}
+
+@media (max-width: 768px) {
+  .workspace-layout {
+    grid-template-rows: 1.2fr 1.2fr 1.4fr;
+  }
+
+  .flow-group {
+    padding: 12px 16px;
+  }
+
+  .console-group {
+    min-height: 0;
   }
 }
 

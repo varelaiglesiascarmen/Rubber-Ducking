@@ -5,6 +5,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
+import { MediaMatcher } from '@angular/cdk/layout';
 import { AgentWsService, WsMessage } from '../../../core/services/agent-ws.service';
 import {
   CrossFrameworkDialogComponent,
@@ -76,7 +77,10 @@ function looksLikeCode(code: string): boolean {
   animations: [
     trigger('objectiveFlash', [
       transition('* => *', [
-        query('.card-option', [
+        query(':leave', [
+          animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 0 })),
+        ], { optional: true }),
+        query(':enter', [
           style({ opacity: 0, transform: 'translateX(-14px)' }),
           stagger(90, animate('420ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateX(0)' }))),
         ]),
@@ -89,6 +93,7 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public selectedObjective = signal<string>('signal');
   public sidebarOpen = signal<boolean>(true);
   public reducedMotion = signal<boolean>(false);
+  public isCompact = signal<boolean>(false);
 
   public currentObjectives = computed<ObjectiveOption[]>(() =>
     OBJECTIVES_BY_STACK[this.selectedStack()] ?? OBJECTIVES_BY_STACK['angular']
@@ -130,27 +135,41 @@ export class DashboardLayoutComponent implements OnInit, OnDestroy {
   public copied = signal<boolean>(false);
 
   private copiedTimeout: ReturnType<typeof setTimeout> | null = null;
+  private compactQuery: MediaQueryList | null = null;
+  private compactChange = (e: MediaQueryListEvent) => this.onCompactChange(e);
 
   private handler = (msg: WsMessage) => this.handleMessage(msg);
   private _pollInterval: ReturnType<typeof setInterval> | null = null;
   private _pollTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private ws: AgentWsService, public dialog: MatDialog) {}
+  constructor(private ws: AgentWsService, public dialog: MatDialog, private media: MediaMatcher) {}
 
   ngOnInit(): void {
     this.reducedMotion.set(
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     );
+    this.compactQuery = this.media.matchMedia('(max-width: 1024px)');
+    this.isCompact.set(this.compactQuery.matches);
+    this.compactQuery.addEventListener('change', this.compactChange);
     this.ws.onMessage(this.handler);
   }
 
   ngOnDestroy(): void {
     this.ws.removeMessageHandler(this.handler);
+    if (this.compactQuery !== null) {
+      this.compactQuery.removeEventListener('change', this.compactChange);
+      this.compactQuery = null;
+    }
     this._clearPolling();
     if (this.copiedTimeout !== null) {
       clearTimeout(this.copiedTimeout);
       this.copiedTimeout = null;
     }
+  }
+
+  private onCompactChange(e: MediaQueryListEvent): void {
+    this.isCompact.set(e.matches);
+    this.sidebarOpen.set(!e.matches);
   }
 
   public async copyOutput(): Promise<void> {
