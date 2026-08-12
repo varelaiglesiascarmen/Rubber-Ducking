@@ -1,0 +1,54 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.dialog-icon {
+  color: var(--pink-primary);
+}
+
+.dialog-content {
+  color: var(--text-main);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.dialog-content .highlight {
+  color: var(--pink-primary);
+}
+
+.dialog-content .hint {
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+
+.dialog-actions {
+  gap: 6px;
+}
+
+.btn-switch {
+  border: 1px solid var(--border-color);
+  color: var(--lavender);
+}
+
+.btn-switch:hover {
+  border-color: var(--lavender);
+}
+
+.btn-migrate {
+  background-color: var(--pink-primary);
+  color: var(--bg-main);
+  font-weight: 700;
+}
+
+.btn-migrate:hover {
+  background-color: var(--pink-neon);
+}
+
+.btn-close {
+  color: var(--text-muted);
+}

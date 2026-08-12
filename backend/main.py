@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 import uuid
 from contextlib import asynccontextmanager
 
@@ -14,6 +15,17 @@ from agents.crew import CrewAgentPipeline, shutdown_executor
 
 pipeline = CrewAgentPipeline()
 rate_limiter = RateLimiter(max_calls=5, window=60)
+
+CODE_KEYWORDS = re.compile(
+    r'(?:import|from|function|class|const|let|var|return|def|interface|type|export|require|new)|[{}();<>]'
+)
+
+
+def looks_like_code(code: str) -> bool:
+    meaningful = re.sub(r'(//[^\n]*|/\*[\s\S]*?\*/)', '', code).strip()
+    if len(meaningful) < 8:
+        return False
+    return bool(CODE_KEYWORDS.search(meaningful))
 
 
 @asynccontextmanager
@@ -91,6 +103,13 @@ async def agent_websocket(ws: WebSocket):
                     await manager.send_json(client_id, {
                         "type": "error",
                         "message": "Code too large. Maximum 50KB allowed."
+                    })
+                    continue
+
+                if not looks_like_code(code):
+                    await manager.send_json(client_id, {
+                        "type": "error",
+                        "message": "El texto no parece código válido"
                     })
                     continue
 

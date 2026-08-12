@@ -8,11 +8,6 @@
   </div>
 
   <div class="header-actions">
-    <button class="btn-toggle-sidebar" (click)="toggleSidebar()"
-            [attr.aria-label]="sidebarOpen() ? 'Ocultar panel de configuración' : 'Mostrar panel de configuración'"
-            [matTooltip]="sidebarOpen() ? 'Ocultar configuración' : 'Mostrar configuración'">
-      <mat-icon>{{ sidebarOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
-    </button>
     <span class="status-badge" [class.active]="isOrchestrating()"
           [class.connecting]="connectionStatus() === 'connecting'">
       {{ statusLabel() }}
@@ -23,10 +18,11 @@
 <mat-sidenav-container class="app-container">
 
   <mat-sidenav mode="side" [opened]="sidebarOpen()" class="sidebar">
-    <div class="sidebar-handle" (click)="toggleSidebar()"
-         [attr.aria-label]="sidebarOpen() ? 'Ocultar panel de configuración' : 'Mostrar panel de configuración'">
-      <mat-icon>{{ sidebarOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
-    </div>
+    <button class="btn-close-sidebar" (click)="toggleSidebar()"
+            [attr.aria-label]="'Ocultar panel de configuración'"
+            [matTooltip]="'Ocultar configuración'">
+      <mat-icon>close</mat-icon>
+    </button>
 
     <section class="config-group">
       <h3 class="section-title">1. Configuración</h3>
@@ -52,7 +48,8 @@
 
     <section class="config-group">
       <h3 class="section-title">2. Objetivo de IA</h3>
-      <div class="objectives-list">
+      <div class="objectives-list" [@.disabled]="reducedMotion()"
+           [@objectiveFlash]="selectedStack()">
         @for (obj of currentObjectives(); track obj.key) {
           <button class="card-option"
                   [class.active]="selectedObjective() === obj.key"
@@ -80,6 +77,14 @@
 
   <mat-sidenav-content class="main-content">
 
+    @if (!sidebarOpen()) {
+      <button class="btn-open-sidebar" (click)="toggleSidebar()"
+              [attr.aria-label]="'Mostrar panel de configuración'"
+              [matTooltip]="'Mostrar configuración'">
+        <mat-icon>menu</mat-icon>
+      </button>
+    }
+
     <div class="workspace-layout">
 
       <section class="editor-panel">
@@ -99,21 +104,20 @@
       <section class="editor-panel">
         <header class="editor-header">
           <span>Código Refactorizado por Agentes</span>
-          <span class="header-tools">
-            <button class="btn-copy-code" (click)="copyOutput()"
-                    [class.copied]="copied()"
-                    [disabled]="!codeOutput().trim()"
-                    [attr.aria-label]="copied() ? 'Código copiado' : 'Copiar código refactorizado'">
-              <mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
-              {{ copied() ? 'Copiado' : 'Copiar' }}
-            </button>
-            <span class="panel-status" [class.active]="isOrchestrating()">
-              {{ isOrchestrating() ? 'Procesando...' : 'Inactivo' }}
-            </span>
+          <span class="panel-status" [class.active]="isOrchestrating()">
+            {{ isOrchestrating() ? 'Procesando...' : 'Inactivo' }}
           </span>
         </header>
-        <div class="code-content">
+        <div class="code-content output-content">
           <pre class="code-output scrollable">{{ codeOutput() || '// El código refactorizado aparecerá aquí después de la orquestación.' }}</pre>
+          @if (codeOutput().trim()) {
+            <button class="btn-copy-code" (click)="copyOutput()"
+                    [class.copied]="copied()"
+                    [attr.aria-label]="copied() ? 'Código copiado' : 'Copiar código refactorizado'"
+                    [matTooltip]="copied() ? 'Copiado' : 'Copiar código'">
+              <mat-icon>{{ copied() ? 'check' : 'content_copy' }}</mat-icon>
+            </button>
+          }
         </div>
       </section>
 

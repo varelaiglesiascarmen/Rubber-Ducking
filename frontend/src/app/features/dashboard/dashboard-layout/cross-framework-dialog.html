@@ -1,0 +1,24 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon class="dialog-icon">warning_amber</mat-icon>
+  Framework detectado distinto
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <p>
+    El código parece ser de <strong class="highlight">{{ data.detectedLabel }}</strong>,
+    pero has seleccionado <strong>{{ data.selectedLabel }}</strong>.
+  </p>
+  <p class="hint">¿Qué quieres hacer?</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button class="btn-switch" (click)="switchStack()">
+    Cambiar a {{ data.detectedLabel }}
+  </button>
+  <button mat-button class="btn-migrate" (click)="migrateAnyway()">
+    Migrar de todas formas
+  </button>
+  <button mat-icon-button class="btn-close" mat-dialog-close aria-label="Cerrar">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-dialog-actions>

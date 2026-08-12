@@ -60,12 +60,14 @@ body {
 /* COMPONENTES DE ANGULAR MATERIAL (OVERRIDES) */
 mat-sidenav-container.app-container {
   background-color: var(--bg-main) !important;
-  height: 100vh !important;
+  height: calc(100vh - 70px) !important;
   width: 100vw !important;
+  overflow: hidden;
 }
 
 mat-sidenav.sidebar {
   width: 280px;
+  position: relative;
   background-color: var(--bg-surface) !important;
   border-right: 1px solid var(--border-color) !important;
   padding: 24px;
@@ -84,25 +86,39 @@ mat-sidenav-content.main-content {
 
 /* TOOLTIP DE ANGULAR MATERIAL (OVERRIDE PARA TEMARIZARLO) */
 .mat-mdc-tooltip {
-  --mat-tooltip-container-color: var(--bg-surface);
-  --mdc-tooltip-container-color: var(--bg-surface);
+  --mat-tooltip-container-color: var(--pink-primary);
+  --mdc-tooltip-container-color: var(--pink-primary);
 }
 
 .mat-mdc-tooltip-panel {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--pink-neon);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45),
-              0 0 12px rgba(255, 126, 187, 0.08);
+              0 0 12px rgba(255, 126, 187, 0.25);
 }
 
 .mat-mdc-tooltip .mdc-tooltip__surface {
-  color: var(--text-main);
-  font-size: 0.78rem;
+  color: #2a0a1a;
+  font-size: 0.8rem;
+  font-weight: 800;
   letter-spacing: 0.01em;
 }
 
 .mat-mdc-tooltip .mdc-tooltip__surface::after {
-  color: var(--pink-primary);
+  color: var(--pink-neon);
+}
+
+/* DIALOG DE ANGULAR MATERIAL (OVERRIDE PARA TEMA DARK) */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55),
+              0 0 16px rgba(255, 126, 187, 0.12);
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--bg-surface) !important;
 }
 
 /* TIPOGRAFIAS Y TITULOS DE LOGO */

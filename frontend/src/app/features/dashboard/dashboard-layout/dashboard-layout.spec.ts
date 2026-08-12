@@ -1,4 +1,6 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { of } from 'rxjs';
 import { DashboardLayoutComponent } from './dashboard-layout';
 import { AgentWsService } from '../../../core/services/agent-ws.service';
 
@@ -31,7 +33,10 @@ describe('DashboardLayoutComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [DashboardLayoutComponent],
-      providers: [{ provide: AgentWsService, useValue: wsMock }],
+      providers: [
+        provideNoopAnimations(),
+        { provide: AgentWsService, useValue: wsMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardLayoutComponent);
@@ -152,5 +157,57 @@ describe('DashboardLayoutComponent', () => {
 
     expect(document.execCommand).toHaveBeenCalledWith('copy');
     expect(component.copied()).toBe(true);
+  });
+
+  it('should NOT orchestrate when pasted text is not real code', () => {
+    component.codeInput.set('hfijs');
+    expect(component.canOrchestrate()).toBe(false);
+    expect(component.missingRequirements()).toContain('código válido');
+    component.toggleOrchestration();
+    expect(wsMock.connect).not.toHaveBeenCalled();
+  });
+
+  it('should orchestrate when pasted text looks like code', () => {
+    component.codeInput.set('@Component({ selector: "app-x" }) class X {}');
+    expect(component.canOrchestrate()).toBe(true);
+    component.toggleOrchestration();
+    expect(wsMock.connect).toHaveBeenCalled();
+  });
+
+  it('should open cross-framework dialog when stack mismatches', () => {
+    component.codeInput.set('import React from "react"; const App = () => <div/>;');
+    component.selectedStack.set('angular');
+    const openSpy = vi.spyOn(component.dialog, 'open').mockReturnValue({
+      afterClosed: () => of('migrate') as any,
+    } as any);
+
+    component.toggleOrchestration();
+
+    expect(openSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should switch stack when dialog returns switch', async () => {
+    component.codeInput.set('import React from "react"; const App = () => <div/>;');
+    component.selectedStack.set('angular');
+    vi.spyOn(component.dialog, 'open').mockReturnValue({
+      afterClosed: () => of('switch') as any,
+    } as any);
+
+    await component.toggleOrchestration();
+
+    expect(component.selectedStack()).toBe('react');
+    expect(wsMock.connect).not.toHaveBeenCalled();
+  });
+
+  it('should migrate anyway when dialog returns migrate', async () => {
+    component.codeInput.set('import React from "react"; const App = () => <div/>;');
+    component.selectedStack.set('angular');
+    vi.spyOn(component.dialog, 'open').mockReturnValue({
+      afterClosed: () => of('migrate') as any,
+    } as any);
+
+    await component.toggleOrchestration();
+
+    expect(wsMock.connect).toHaveBeenCalled();
   });
 });
