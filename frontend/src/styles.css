@@ -67,13 +67,18 @@ mat-sidenav-container.app-container {
 
 mat-sidenav.sidebar {
   width: 280px;
-  position: relative;
   background-color: var(--bg-surface) !important;
   border-right: 1px solid var(--border-color) !important;
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+mat-sidenav.sidebar .mat-drawer-inner-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 mat-sidenav-content.main-content {

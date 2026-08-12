@@ -77,7 +77,10 @@ function looksLikeCode(code: string): boolean {
   animations: [
     trigger('objectiveFlash', [
       transition('* => *', [
-        query('.card-option', [
+        query(':leave', [
+          animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 0 })),
+        ], { optional: true }),
+        query(':enter', [
           style({ opacity: 0, transform: 'translateX(-14px)' }),
           stagger(90, animate('420ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateX(0)' }))),
         ]),
