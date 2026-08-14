@@ -61,7 +61,7 @@ body {
 mat-sidenav-container.app-container {
   background-color: var(--bg-main) !important;
   height: calc(100vh - 70px) !important;
-  width: 100vw !important;
+  width: 100% !important;
   overflow: hidden;
 }
 
