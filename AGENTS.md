@@ -97,8 +97,17 @@ GROQ_MODEL=llama3-70b-8192
   (`min-height:0`/`minmax(0,1fr)` en breakpoints).
 - **Sidebar:** colapsa/abre con `chevron_left`/`chevron_right`, mode `over` en
   móvil + auto-cierre en ≤1024px. Tooltips con Delay 2000ms.
-- **Animación objetivos dinámicos:** `@objectiveFlash` con `:enter`/`:leave`
-  (solo se muestran los objetivos del stack activo).
+- **Animación objetivos dinámicos:** `@objectiveFlash` con transición simple
+  fade/slide (`opacity 0.35 → 1`, `translateX(-8px) → 0`, 400ms ease-out) sobre
+  el contenedor; `@for` usa `track $index` para que Angular no recreue los nodos
+  al cambiar de stack.
 
-Convenciones: `main` está capada (solo merge vía PR); merges con
-`gh pr merge --squash --delete-branch --admin` tras verificación en local.
+## Flujo de trabajo en Git
+
+- Solo existen `main` y la rama activa; nunca se trabaja directamente en `main`.
+- Ciclo por cada fix: rama → verificación en local → PR →
+  `gh pr merge --squash --delete-branch --admin` → borrar rama local y remota.
+- Si aparecen ramas sin uso (ya mergeadas o sin commits propios), reportar qué
+  resolvían antes de borrarlas.
+- Antes de mergear: `git diff --check`, build Docker del frontend, tests
+  (pytest + Vitest) y QA humano en `http://localhost:8080`.
