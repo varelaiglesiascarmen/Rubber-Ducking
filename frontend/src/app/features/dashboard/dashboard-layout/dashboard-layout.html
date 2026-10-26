@@ -51,7 +51,7 @@
       <h3 class="section-title">2. Objetivo de IA</h3>
       <div class="objectives-list" [@.disabled]="reducedMotion()"
            [@objectiveFlash]="selectedStack()">
-        @for (obj of currentObjectives(); track obj.key) {
+        @for (obj of currentObjectives(); track $index) {
           <button class="card-option"
                   [class.active]="selectedObjective() === obj.key"
                   [disabled]="!isObjCompatible(obj.key)"
