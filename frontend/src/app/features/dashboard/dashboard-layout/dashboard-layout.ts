@@ -1,5 +1,5 @@
 import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { firstValueFrom } from 'rxjs';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -77,13 +77,8 @@ function looksLikeCode(code: string): boolean {
   animations: [
     trigger('objectiveFlash', [
       transition('* => *', [
-        query(':leave', [
-          animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 0 })),
-        ], { optional: true }),
-        query(':enter', [
-          style({ opacity: 0, transform: 'translateX(-14px)' }),
-          stagger(90, animate('420ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateX(0)' }))),
-        ]),
+        style({ opacity: 0.35, transform: 'translateX(-8px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateX(0)' })),
       ]),
     ]),
   ],
