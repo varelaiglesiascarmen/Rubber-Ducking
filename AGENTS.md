@@ -3,6 +3,12 @@
 Monorepo de producción con Angular 21 + FastAPI + CrewAI para refactorización
 automática de código mediante un pipeline multi-agente.
 
+## Antes de implementar
+
+Lee [`worktree-QA.md`](worktree-QA.md): define el ritmo de trabajo, el reparto
+de carriles y las dependencias entre los issues del QA. No empieces un issue sin
+comprobar antes si otro toca el mismo fichero.
+
 ## Estructura del Proyecto
 
 ```
